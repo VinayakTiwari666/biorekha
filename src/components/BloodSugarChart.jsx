@@ -20,14 +20,29 @@ ChartJS.register(
 );
 
 function BloodSugarChart({ data }) {
+
+  // 🔥 Safe timestamp formatter
+  const formatTime = (timestamp) => {
+    if (!timestamp) return "";
+
+    if (timestamp.toDate) {
+      return timestamp.toDate().toLocaleTimeString();
+    }
+
+    return new Date(timestamp).toLocaleTimeString();
+  };
+
+  // 🔥 Oldest → Newest for better visual flow
+  const sortedData = [...data].reverse();
+
   const chartData = {
-    labels: data.map((entry) =>
-      new Date(entry.timestamp).toLocaleTimeString()
+    labels: sortedData.map((entry) =>
+      formatTime(entry.timestamp)
     ),
     datasets: [
       {
         label: "Blood Sugar (mg/dL)",
-        data: data.map((entry) => entry.value),
+        data: sortedData.map((entry) => entry.sugarLevel),
         borderColor: "#3b82f6",
         backgroundColor: "rgba(59, 130, 246, 0.2)",
         tension: 0.3,

@@ -11,7 +11,6 @@ function Navbar() {
 
   const navigate = useNavigate();
 
-  // Listen to auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -20,8 +19,10 @@ function Navbar() {
     return () => unsubscribe();
   }, []);
 
-  // Logout handler
   const handleLogout = async () => {
+    const confirmLogout = window.confirm("Are you sure you want to log out?");
+    if (!confirmLogout) return;
+
     try {
       await signOut(auth);
       setMenuOpen(false);
@@ -39,47 +40,73 @@ function Navbar() {
         </Link>
       </div>
 
-      {/* Hamburger Icon */}
-      <button
-        className={`hamburger ${menuOpen ? "open" : ""}`}
+      {/* Hamburger Button */}
+      <div
+        className="hamburger"
         onClick={() => setMenuOpen(!menuOpen)}
       >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+        ☰
+      </div>
 
-      {/* Nav Links */}
       <ul className={`nav-links ${menuOpen ? "open" : ""}`}>
         <li>
-          {user ? (
-            <button onClick={handleLogout} className="logout-btn">
-              Logout
-            </button>
-          ) : (
-            <Link to="/vitals" onClick={() => setMenuOpen(false)}>
-              Login
-            </Link>
-          )}
-        </li>
-
-        <li>
-          <Link to="/about" onClick={() => setMenuOpen(false)}>
+          <Link
+            to="/about"
+            className="nav-item"
+            onClick={() => setMenuOpen(false)}
+          >
             About
           </Link>
         </li>
 
         <li>
-          <Link to="/vitals" onClick={() => setMenuOpen(false)}>
+          <Link
+            to="/vitals"
+            className="nav-item"
+            onClick={() => setMenuOpen(false)}
+          >
             Vitals
           </Link>
         </li>
 
-        <li>Share</li>
+        <li>
+          <Link
+            to="/share"
+            className="nav-item"
+            onClick={() => setMenuOpen(false)}
+          >
+            Share
+          </Link>
+        </li>
+
+        {!user && (
+          <li>
+            <Link
+              to="/vitals"
+              className="nav-item"
+              onClick={() => setMenuOpen(false)}
+            >
+              Login
+            </Link>
+          </li>
+        )}
+
+        {user && (
+          <>
+            <li>
+              <span className="username">👥 {user.displayName}</span>
+            </li>
+
+            <li>
+              <button onClick={handleLogout} className="logout-btn">
+                Logout
+              </button>
+            </li>
+          </>
+        )}
       </ul>
     </nav>
   );
 }
 
 export default Navbar;
-

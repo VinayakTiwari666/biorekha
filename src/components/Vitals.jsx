@@ -2,6 +2,7 @@ import { useState } from "react";
 import BloodPressureForm from "./BloodPressureForm";
 import BloodSugarForm from "./BloodSugarForm";
 
+
 function Vitals() {
   const [selectedVital, setSelectedVital] = useState("");
 

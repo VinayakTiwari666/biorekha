@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Link } from "react-router-dom";
-
+import SharePage from "./components/SharePage";
+import ShareQRCode from "./components/ShareQRCode";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 
@@ -79,12 +80,20 @@ function App() {
 
       {/* ABOUT */}
       <Route path="/about" element={<AboutPage />} />
+      <Route path="/share" element={<ShareQRCode />} />
+<Route path="/share/:userId" element={<SharePage />} />
 
       {/* PROTECTED VITALS */}
-      <Route
-        path="/vitals"
-        element={user ? <Vitals /> : <Login />}
-      />
+<Route
+  path="/vitals"
+  element={
+    user ? (
+      <Vitals />
+    ) : (
+      <Login message="Please login to access Vitals." />
+    )
+  }
+/>
     </Routes>
   </>
 );

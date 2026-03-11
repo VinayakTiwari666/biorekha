@@ -57,9 +57,7 @@ function AboutPage() {
       {/* CTA */}
       <section className="about-cta">
         <p>Ready to take control of your health records?</p>
-        <button className="get-started-btn">
-          Continue to Login
-        </button>
+       
         <br />
         <Link to="/">
   <button className="get-started-btn">
