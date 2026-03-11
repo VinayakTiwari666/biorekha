@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
 import SharePage from "./components/SharePage";
 import ShareQRCode from "./components/ShareQRCode";
 import { onAuthStateChanged } from "firebase/auth";
@@ -16,6 +16,9 @@ import logo from "./assets/logorework.png";
 function App() {
   const [showIntro, setShowIntro] = useState(true);
   const [user, setUser] = useState(null);
+
+  const location = useLocation();
+  const hideNavbar = location.pathname.startsWith("/share/");
 
   // Intro screen timer
   useEffect(() => {
@@ -44,60 +47,63 @@ function App() {
   }
 
   return (
-  <>
-    <Navbar />
+    <>
+      {!hideNavbar && <Navbar />}
 
-    <Routes>
-      {/* HOME */}
-      <Route
-        path="/"
-        element={
-          <div className="main-page">
-            <div className="content">
-              <h1>
-                Welcome to <span className="highlight">BioRekha</span> – Your
-                Health Records Simplified
-              </h1>
+      <Routes>
+        {/* HOME */}
+        <Route
+          path="/"
+          element={
+            <div className="main-page">
+              <div className="content">
+                <h1>
+                  Welcome to <span className="highlight">BioRekha</span> – Your
+                  Health Records Simplified
+                </h1>
 
-              <p>
-                Easily access and manage your health records with BioRekha.
-                Your health, your control.
-              </p>
+                <p>
+                  Easily access and manage your health records with BioRekha.
+                  Your health, your control.
+                </p>
 
-              <p className="trust-line">
-                🔒 Secure • 📁 Centralized • 👨‍⚕️ Patient-first
-              </p>
+                <p className="trust-line">
+                  🔒 Secure • 📁 Centralized • 👨‍⚕️ Patient-first
+                </p>
 
-              <Link to="/vitals">
-                <button className="get-started-btn">
-                  Get Started
-                </button>
-              </Link>
+                <Link to="/vitals">
+                  <button className="get-started-btn">
+                    Get Started
+                  </button>
+                </Link>
+              </div>
             </div>
-          </div>
-        }
-      />
+          }
+        />
 
-      {/* ABOUT */}
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="/share" element={<ShareQRCode />} />
-<Route path="/share/:userId" element={<SharePage />} />
+        {/* ABOUT */}
+        <Route path="/about" element={<AboutPage />} />
 
-      {/* PROTECTED VITALS */}
-<Route
-  path="/vitals"
-  element={
-    user ? (
-      <Vitals />
-    ) : (
-      <Login message="Please login to access Vitals." />
-    )
-  }
-/>
-    </Routes>
-  </>
-);
+        {/* QR GENERATOR */}
+        <Route path="/share" element={<ShareQRCode />} />
 
+        {/* PUBLIC SHARE PAGE */}
+        <Route path="/share/:userId" element={<SharePage />} />
+
+        {/* PROTECTED VITALS */}
+        <Route
+          path="/vitals"
+          element={
+            user ? (
+              <Vitals />
+            ) : (
+              <Login message="Please login to access Vitals." />
+            )
+          }
+        />
+      </Routes>
+    </>
+  );
 }
 
 export default App;

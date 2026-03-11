@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
-import { useSearchParams } from "react-router-dom";
+import logo from "../assets/logorework.png";
+
 import BloodSugarChart from "./BloodSugarChart";
 import BloodPressureChart from "./BloodPressureChart";
 
 function SharePage() {
   const { userId } = useParams();
-const [searchParams] = useSearchParams();
-const patientName = searchParams.get("name") || "Patient";
+  const [searchParams] = useSearchParams();
+  const patientName = searchParams.get("name") || "Patient";
 
   const [sugarReadings, setSugarReadings] = useState([]);
   const [bpReadings, setBpReadings] = useState([]);
-
-  
 
   useEffect(() => {
     const sugarQuery = query(
@@ -30,20 +29,16 @@ const patientName = searchParams.get("name") || "Patient";
     const unsubSugar = onSnapshot(sugarQuery, (snapshot) => {
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
-
-      console.log("SUGAR DATA:", data);
       setSugarReadings(data);
     });
 
     const unsubBP = onSnapshot(bpQuery, (snapshot) => {
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
-
-      console.log("BP DATA:", data);
       setBpReadings(data);
     });
 
@@ -53,55 +48,110 @@ const patientName = searchParams.get("name") || "Patient";
     };
   }, [userId]);
 
+  const latestBP = bpReadings[0];
+  const latestSugar = sugarReadings[0];
+
   return (
     <div className="share-page">
-
-      {/* ===== Report Header ===== */}
+      
+      {/* ===== HEADER ===== */}
       <div className="report-header">
-        <h1>BioRekha Health Report</h1>
-        <p><strong>Patient:</strong> {patientName}</p>
-        <p><strong>Generated:</strong> {new Date().toLocaleDateString()}</p>
+
+  <img src={logo} alt="BioRekha logo" className="report-logo" />
+
+  <h1>BioRekha Health Report</h1>
+
+  <div className="report-meta">
+    <p><strong>Patient:</strong> {patientName}</p>
+    <p><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
+  </div>
+
+</div>
+
+      {/* ===== SUMMARY CARDS ===== */}
+      <div className="report-summary">
+
+        {latestBP && (
+          <div className="summary-card">
+            <h3>Latest Blood Pressure</h3>
+            <p className="reading">
+              {latestBP.systolic}/{latestBP.diastolic}
+            </p>
+            <span className="unit">mmHg</span>
+          </div>
+        )}
+
+        {latestSugar && (
+          <div className="summary-card">
+            <h3>Latest Blood Sugar</h3>
+            <p className="reading">
+              {latestSugar.sugarLevel}
+            </p>
+            <span className="unit">mg/dL</span>
+          </div>
+        )}
+
       </div>
 
-      {/* ===== Blood Pressure Section ===== */}
+      {/* ===== BLOOD PRESSURE SECTION ===== */}
       {bpReadings.length > 0 && (
         <div className="report-section">
-          <h2>Blood Pressure</h2>
+          <h2>Blood Pressure History</h2>
 
-          <ul>
-            {bpReadings.map((r) => (
-              <li key={r.id}>
-                {r.systolic}/{r.diastolic} mmHg
-              </li>
-            ))}
-          </ul>
+          <div className="chart-container">
+            {bpReadings.length > 1 && (
+              <BloodPressureChart data={bpReadings} />
+            )}
+          </div>
 
-          {bpReadings.length > 1 && (
-            <BloodPressureChart data={bpReadings} />
-          )}
+         <ul className="reading-list">
+  {bpReadings.map((r) => (
+    <li key={r.id}>
+      <span className="reading-value">
+        {r.systolic}/{r.diastolic} mmHg
+      </span>
+
+      <span className="reading-time">
+  {r.timestamp?.toDate().toLocaleString("en-US", {
+    weekday: "long"
+  })} • {r.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+</span>
+    </li>
+  ))}
+</ul>
         </div>
       )}
 
-      {/* ===== Blood Sugar Section ===== */}
+      {/* ===== BLOOD SUGAR SECTION ===== */}
       {sugarReadings.length > 0 && (
         <div className="report-section">
-          <h2>Blood Sugar</h2>
+          <h2>Blood Sugar History</h2>
 
-          <ul>
-            {sugarReadings.map((r) => (
-              <li key={r.id}>
-                {r.sugarLevel} mg/dL
-              </li>
-            ))}
-          </ul>
+          <div className="chart-container">
+            {sugarReadings.length > 1 && (
+              <BloodSugarChart data={sugarReadings} />
+            )}
+          </div>
 
-          {sugarReadings.length > 1 && (
-            <BloodSugarChart data={sugarReadings} />
-          )}
+        <ul className="reading-list">
+  {sugarReadings.map((r) => (
+    <li key={r.id}>
+      <span className="reading-value">
+        {r.sugarLevel} mg/dL
+      </span>
+
+      <span className="reading-time">
+  {r.timestamp?.toDate().toLocaleString("en-US", {
+    weekday: "long"
+  })} • {r.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+</span>
+    </li>
+  ))}
+</ul>
         </div>
       )}
 
-      {/* ===== Report Footer ===== */}
+      {/* ===== FOOTER ===== */}
       <div className="report-footer">
         <p>
           This report is generated by BioRekha for informational purposes only.
